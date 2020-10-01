@@ -145,38 +145,6 @@ router.post('/signin',(req,res) => {
 
 
 
-router.post('/reset-password',(req,res) => {
-    crypto.randomBytes(32,(err,buffer) => {
-        if(err){
-            return console.log(err);
-        }
-        // console.log(buffer);
-        const token = buffer.toString('hex');
-        // console.log(token);
-        User.findOne({email:req.body.email})
-        .then(user => {
-            if(!user){
-                return res.status(422).json({error: 'No user with that email'})
-            }
-            user.resetToken = token;
-            user.expireToken = Date.now() + 3600*1000;
-            user.save().then(result => {
-                transport.sendMail({
-                    to: user.email,
-                    from: 'no-reply@gmail.com',
-                    subject: 'Reset password link',
-                    html: `
-                    <p>You Requested for password reset</p>
-                    <h5>Click <a href="http://localhost:3000/reset/${token}">here</a> to reset Password</h5>
-                    <p> This link will expire after 1 hour </p>
-                    `
-                })
-                res.json({message: 'Please Check Your mail'})
-            })
-        })
-    })
-})
-
 router.post('/reset-pass',(req,res) => {
     const newPassword = req.body.password;
     const sentToken = req.body.token;
